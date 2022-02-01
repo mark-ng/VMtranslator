@@ -21,9 +21,10 @@ public class Parser {
          Initially there is no current command.
      */
     public void advance() {
-        // TODO: Check empty line, skip that
-        // TODO: Ignores comments
-        currentCommand = sc.nextLine();
+        // Skip empty line and comment
+        do {
+            currentCommand = sc.nextLine();
+        } while (currentCommand.equals("") || currentCommand.startsWith("//"));
     }
 
 

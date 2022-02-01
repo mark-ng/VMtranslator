@@ -29,53 +29,31 @@ public class CodeWriter {
         Writes the assembly code that is the translation of the given arithmetic command.
      */
     public void writeArithmetic(String command) throws IOException {
-        /*
-            SP--
-            D=*SP
-            SP--
-            D=D+ *SP
-            *SP=D
-            SP++
-
-            -----
-            // SP--
-            @SP
-            M=M-1
-            // D=*SP
-            @SP
-            A=M
-            D=M
-            // SP--
-            @SP
-            M=M-1
-            // D=D+ *SP
-            @SP
-            A=M
-            D=D+M
-            // *SP=D
-            @SP
-            A=M
-            M=D
-            // SP++
-            @SP
-            M=M+1
-
-         */
         if (command.equals("add")) {
-            System.out.println("called");
+            br.write("// SP--\n");
             br.write("@SP\n");
             br.write("M=M-1\n");
+
+            br.write("// D=*SP\n");
             br.write("@SP\n");
             br.write("A=M\n");
             br.write("D=M\n");
+
+            br.write("// SP--\n");
             br.write("@SP\n");
             br.write("M=M-1\n");
+
+            br.write("// D=D+*SP\n");
             br.write("@SP\n");
             br.write("A=M\n");
             br.write("D=D+M\n");
+
+            br.write("// *SP=D\n");
             br.write("@SP\n");
             br.write("A=M\n");
             br.write("M=D\n");
+
+            br.write("// SP++\n");
             br.write("@SP\n");
             br.write("M=M+1\n");
         }
@@ -86,37 +64,20 @@ public class CodeWriter {
         where command is either C_PUSH or C_POP.
      */
     public void writePushPop(CommandType command, String segment, int index) throws IOException {
-        // push constant x
-        /*
-            SP stored in RAM[0]
-            Stack base address = 256
-
-            PUSH CONSTANT 17
-            *SP = 17
-            SP++
-            --------
-            @17
-            D=A
-
-            @SP // RAM0 -> SP, A=0, M=256
-            A=M // A=256
-            M=D
-
-            @SP
-            M=M+1
-            --------
-         */
         if (command == CommandType.C_PUSH && segment.equals("constant")) {
+            // *SP = i
+            br.write("// *SP=i\n");
             String firstLine = "@" + index;
             br.write(firstLine + "\n");
             br.write("D=A\n");
             br.write("@SP\n");
             br.write("A=M\n");
             br.write("M=D\n");
+
+            br.write("// SP++\n");
             br.write("@SP\n");
             br.write("M=M+1\n");
         }
-
     }
 
     /*
