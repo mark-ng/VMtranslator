@@ -5,6 +5,7 @@ import java.io.IOException;
 public class CodeWriter {
 
     BufferedWriter br;
+    private static int variable_counter = 0;
 
     /*
         Opens the output file/ stream and gets ready to write into it.
@@ -29,7 +30,14 @@ public class CodeWriter {
         Writes the assembly code that is the translation of the given arithmetic command.
      */
     public void writeArithmetic(String command) throws IOException {
-        if (command.equals("add")) {
+        variable_counter++;
+        // Binary Commands (add, sub, eq, gt, lt, and, or)
+        if (
+                command.equals("add") ||
+                command.equals("sub") ||
+                command.equals("and") ||
+                command.equals("or")
+        ) {
             br.write("// SP--\n");
             br.write("@SP\n");
             br.write("M=M-1\n");
@@ -43,20 +51,141 @@ public class CodeWriter {
             br.write("@SP\n");
             br.write("M=M-1\n");
 
-            br.write("// D=D+*SP\n");
-            br.write("@SP\n");
-            br.write("A=M\n");
-            br.write("D=D+M\n");
+            if (command.equals("add")) {
+                br.write("// D=D+*SP\n");
+                br.write("@SP\n");
+                br.write("A=M\n");
+                br.write("D=D+M\n");
+            } else if (command.equals("sub")) {
+                br.write("// D=*SP-D\n");
+                br.write("@SP\n");
+                br.write("A=M\n");
+                br.write("D=M-D\n");
+            } else if (command.equals("and")) {
+                br.write("// D=D&*SP\n");
+                br.write("@SP\n");
+                br.write("A=M\n");
+                br.write("D=D&M\n");
+            } else if (command.equals("or")) {
+                br.write("// D=D|*SP\n");
+                br.write("@SP\n");
+                br.write("A=M\n");
+                br.write("D=D|M\n");
+            }
 
             br.write("// *SP=D\n");
             br.write("@SP\n");
             br.write("A=M\n");
             br.write("M=D\n");
-
-            br.write("// SP++\n");
-            br.write("@SP\n");
-            br.write("M=M+1\n");
         }
+
+        if (
+                command.equals("eq") ||
+                command.equals("gt") ||
+                command.equals("lt")
+        ) {
+            br.write("// SP--\n");
+            br.write("@SP\n");
+            br.write("M=M-1\n");
+
+            br.write("// D=*SP\n");
+            br.write("@SP\n");
+            br.write("A=M\n");
+            br.write("D=M\n");
+
+            br.write("// SP--\n");
+            br.write("@SP\n");
+            br.write("M=M-1\n");
+
+            if (command.equals("eq")) {
+                br.write("// D=D-*SP\n");
+                br.write("@SP\n");
+                br.write("A=M\n");
+                br.write("D=D-M\n");
+
+                br.write("// *SP=-1 if D==0, else *SP=0\n");
+                br.write(String.format("@EQUAL%s\n", variable_counter));
+                br.write("D;JEQ\n");
+                br.write("@SP\n");
+                br.write("A=M\n");
+                br.write("M=0\n");
+                br.write(String.format("@ENDIF%s\n", variable_counter));
+                br.write("0;JMP\n");
+                br.write(String.format("(EQUAL%s)\n", variable_counter));
+                br.write("@SP\n");
+                br.write("A=M\n");
+                br.write("M=-1\n");
+                br.write(String.format("(ENDIF%s)\n", variable_counter));
+            } else if (command.equals("gt")) {
+                br.write("// D=*SP-D\n");
+                br.write("@SP\n");
+                br.write("A=M\n");
+                br.write("D=M-D\n");
+
+                br.write("// *SP=-1 if D>0, else *SP=0\n"); // up
+                br.write(String.format("@GREATER%s\n", variable_counter));
+                br.write("D;JGT\n"); // up
+                br.write("@SP\n");
+                br.write("A=M\n");
+                br.write("M=0\n");
+                br.write(String.format("@ENDIF%s\n", variable_counter));
+                br.write("0;JMP\n");
+                br.write(String.format("(GREATER%s)\n", variable_counter));
+                br.write("@SP\n");
+                br.write("A=M\n");
+                br.write("M=-1\n");
+                br.write(String.format("(ENDIF%s)\n", variable_counter));
+            } else if (command.equals("lt")) {
+                br.write("// D=*SP-D\n");
+                br.write("@SP\n");
+                br.write("A=M\n");
+                br.write("D=M-D\n");
+
+                br.write("// *SP=-1 if D<0, else *SP=0\n"); // up
+                br.write(String.format("@LESS%s\n", variable_counter));
+                br.write("D;JLT\n"); // up
+                br.write("@SP\n");
+                br.write("A=M\n");
+                br.write("M=0\n");
+                br.write(String.format("@ENDIF%s\n", variable_counter));
+                br.write("0;JMP\n");
+                br.write(String.format("(LESS%s)\n", variable_counter));
+                br.write("@SP\n");
+                br.write("A=M\n");
+                br.write("M=-1\n");
+                br.write(String.format("(ENDIF%s)\n", variable_counter));
+            }
+        }
+
+        // Unary Commands (neg, not)
+        if (
+                command.equals("neg") ||
+                command.equals("not")
+        ) {
+            br.write("// SP--\n");
+            br.write("@SP\n");
+            br.write("M=M-1\n");
+
+            if (command.equals("neg")) {
+                br.write("@SP\n");
+                br.write("A=M\n");
+                br.write("D=-M\n");
+                br.write("@SP\n");
+                br.write("A=M\n");
+                br.write("M=D\n");
+            } else if (command.equals("not")) {
+                br.write("@SP\n");
+                br.write("A=M\n");
+                br.write("D=!M\n");
+                br.write("@SP\n");
+                br.write("A=M\n");
+                br.write("M=D\n");
+            }
+        }
+
+        br.write("// SP++\n");
+        br.write("@SP\n");
+        br.write("M=M+1\n");
     }
 
     /*

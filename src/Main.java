@@ -1,8 +1,12 @@
+import java.util.Arrays;
+
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        Parser parser = new Parser("./SimpleAdd.vm");
-        CodeWriter codeWriter = new CodeWriter("./SimpleAdd.asm");
+        String filePath = args[0];
+        String outputFile = args[1];
+        Parser parser = new Parser(filePath);
+        CodeWriter codeWriter = new CodeWriter(outputFile);
         while(parser.hasMoreCommands()) {
             parser.advance();
             CommandType commandType = parser.commandType();
