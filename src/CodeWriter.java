@@ -206,6 +206,90 @@ public class CodeWriter {
             br.write("// SP++\n");
             br.write("@SP\n");
             br.write("M=M+1\n");
+        } else if (command == CommandType.C_POP && (segment.equals("local") ||
+                        segment.equals("argument") ||
+                        segment.equals("this") ||
+                        segment.equals("that"))) {
+            String shortHand;
+            if (segment.equals("local")) {
+                shortHand = "LCL";
+            } else if (segment.equals("argument")) {
+                shortHand = "ARG";
+            } else if (segment.equals("this")) {
+                shortHand = "THIS";
+            } else if (segment.equals("that")) {
+                shortHand = "THAT";
+            } else {
+                shortHand = "";
+            }
+            br.write(String.format("// addr = %s+i, SP--, *addr=*SP\n", shortHand));
+            br.write("@SP\n");
+            br.write("M=M-1\n");
+            br.write(String.format("@%s\n", index));
+            br.write("D=A\n");
+            br.write(String.format("@%s\n", shortHand));
+            br.write("D=M+D\n");
+            br.write("@R13\n");
+            br.write("M=D\n");
+            br.write("@SP\n");
+            br.write("A=M\n");
+            br.write("D=M\n");
+            br.write("@R13\n");
+            br.write("A=M\n");
+            br.write("M=D\n");
+        } else if (command == CommandType.C_PUSH && (segment.equals("local") ||
+                segment.equals("argument") ||
+                segment.equals("this") ||
+                segment.equals("that"))) {
+            String shortHand;
+            if (segment.equals("local")) {
+                shortHand = "LCL";
+            } else if (segment.equals("argument")) {
+                shortHand = "ARG";
+            } else if (segment.equals("this")) {
+                shortHand = "THIS";
+            } else if (segment.equals("that")) {
+                shortHand = "THAT";
+            } else {
+                shortHand = "";
+            }
+            br.write(String.format("// addr = %s+i, *SP=*addr, SP++\n", shortHand));
+            br.write(String.format("@%s\n", index));
+            br.write("D=A\n");
+            br.write(String.format("@%s\n", shortHand));
+            br.write("A=M+D\n");
+            br.write("D=M\n");
+            br.write("@SP\n");
+            br.write("A=M\n");
+            br.write("M=D\n");
+            br.write("@SP\n");
+            br.write("M=M+1\n");
+        } else if (command == CommandType.C_PUSH && segment.equals("temp")) {
+            br.write(String.format("@%s\n", index));
+            br.write("D=A\n");
+            br.write("@5\n");
+            br.write("A=M+D\n");
+            br.write("D=M\n");
+            br.write("@SP\n");
+            br.write("A=M\n");
+            br.write("M=D\n");
+            br.write("@SP\n");
+            br.write("M=M+1\n");
+        } else if (command == CommandType.C_POP && segment.equals("temp")) {
+            br.write("@SP\n");
+            br.write("M=M-1\n");
+            br.write(String.format("@%s\n", index));
+            br.write("D=A\n");
+            br.write("@5\n");
+            br.write("D=A+D\n");
+            br.write("@R13\n");
+            br.write("M=D\n");
+            br.write("@SP\n");
+            br.write("A=M\n");
+            br.write("D=M\n");
+            br.write("@R13\n");
+            br.write("A=M\n");
+            br.write("M=D\n");
         }
     }
 
