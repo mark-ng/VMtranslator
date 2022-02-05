@@ -6,6 +6,7 @@ public class CodeWriter {
 
     BufferedWriter br;
     private static int variable_counter = 0;
+    String filename;
 
     /*
         Opens the output file/ stream and gets ready to write into it.
@@ -23,7 +24,7 @@ public class CodeWriter {
         Informs the code writer that the translation of a new VM file is started.
      */
     public void setFileName(String fileName) {
-
+        this.filename = fileName;
     }
 
     /*
@@ -316,6 +317,24 @@ public class CodeWriter {
                 br.write("@THAT\n");
             }
             br.write("M=D\n");
+        } else if (command == CommandType.C_POP && segment.equals("static")) {
+            String address = this.filename + "." + index;
+            br.write("@SP\n");
+            br.write("M=M-1\n");
+            br.write("@SP\n");
+            br.write("A=M\n");
+            br.write("D=M\n");
+            br.write("@" + address + "\n");
+            br.write("M=D\n");
+        } else if (command == CommandType.C_PUSH && segment.equals("static")) {
+            String address = this.filename + "." + index;
+            br.write("@" + address + "\n");
+            br.write("D=M\n");
+            br.write("@SP\n");
+            br.write("A=M\n");
+            br.write("M=D\n");
+            br.write("@SP\n");
+            br.write("M=M+1\n");
         }
     }
 

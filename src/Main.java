@@ -5,8 +5,10 @@ public class Main {
     public static void main(String[] args) throws Exception {
         String filePath = args[0];
         String outputFile = args[1];
+        String filename = args[2];
         Parser parser = new Parser(filePath);
         CodeWriter codeWriter = new CodeWriter(outputFile);
+        codeWriter.setFileName(filename);
         while(parser.hasMoreCommands()) {
             parser.advance();
             CommandType commandType = parser.commandType();
