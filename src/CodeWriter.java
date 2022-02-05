@@ -290,6 +290,32 @@ public class CodeWriter {
             br.write("@R13\n");
             br.write("A=M\n");
             br.write("M=D\n");
+        } else if (command == CommandType.C_PUSH && segment.equals("pointer")) {
+            br.write("// @*SP = THIS/THAT, SP++\n");
+            if (index == 0) {
+                br.write("@THIS\n");
+            } else {
+                br.write("@THAT\n");
+            }
+            br.write("D=M\n");
+            br.write("@SP\n");
+            br.write("A=M\n");
+            br.write("M=D\n");
+            br.write("@SP\n");
+            br.write("M=M+1\n");
+        } else if (command == CommandType.C_POP && segment.equals("pointer")) {
+            br.write("// SP--, THIS/THAT = *SP\n");
+            br.write("@SP\n");
+            br.write("M=M-1\n");
+            br.write("@SP\n");
+            br.write("A=M\n");
+            br.write("D=M\n");
+            if (index == 0) {
+                br.write("@THIS\n");
+            } else {
+                br.write("@THAT\n");
+            }
+            br.write("M=D\n");
         }
     }
 
